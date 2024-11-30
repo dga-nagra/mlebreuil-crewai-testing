@@ -1,19 +1,19 @@
 from crewai.tools import BaseTool
 from typing import Type
 from pydantic import BaseModel, Field
+from pcapkit import extract
 
+class PcapToolInput(BaseModel):
+    """Input schema for PcapTool."""
+    file: str = Field(..., description="name of the file to be imported.")
 
-class MyCustomToolInput(BaseModel):
-    """Input schema for MyCustomTool."""
-    argument: str = Field(..., description="Description of the argument.")
-
-class MyCustomTool(BaseTool):
-    name: str = "Name of my tool"
+class PcapTool(BaseTool):
+    name: str = "pcaptool"
     description: str = (
-        "Clear description for what this tool is useful for, you agent will need this information to use it."
+        "Extract content of a pcap file as a json formated output."
     )
-    args_schema: Type[BaseModel] = MyCustomToolInput
+    args_schema: Type[BaseModel] = PcapToolInput
 
-    def _run(self, argument: str) -> str:
-        # Implementation goes here
-        return "this is an example of a tool output, ignore it and move along."
+    def _run(self, file: str) -> str:
+        json = extract(fin=file, fout='out.json', format='json', extension=False)
+        return json

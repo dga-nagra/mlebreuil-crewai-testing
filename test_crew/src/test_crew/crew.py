@@ -2,10 +2,39 @@ from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 
 # Uncomment the following line to use an example of a custom tool
-# from test_crew.tools.custom_tool import MyCustomTool
+from test_crew.tools.custom_tool import PcapTool
 
 # Check our tools documentations for more information on how to use them
-# from crewai_tools import SerperDevTool
+from crewai_tools import FileReadTool
+from pydantic import BaseModel, Field
+from typing import Dict, Optional, List, Set, Tuple
+from enum import Enum
+
+# log findings pydantic model
+class log_finding_types(str, Enum):
+    missing = 'missing line'
+    repeted = 'repeted line'
+    error = 'error line'
+
+class log_finding(BaseModel):
+    type: log_finding_types = Field(..., description="The type of the finding.")
+    details: str = Field(..., description="Why this finding explain the symptoms")
+
+class log_findings(BaseModel):
+    findings: List[log_finding] = Field(..., description="The list of log_file_finding")
+
+# pcap findings pydantic model
+class pcap_finding_types(str, Enum):
+    missing = 'missing packet'
+    repeted = 'repeted packets'
+    error = 'error packet'
+
+class pcap_finding(BaseModel):
+    type: log_finding_types = Field(..., description="The type of the finding.")
+    details: str = Field(..., description="Why this finding explain the symptoms")
+
+class pcap_findings(BaseModel):
+    findings: List[pcap_finding] = Field(..., description="The list of log_file_finding")
 
 @CrewBase
 class TestCrew():
@@ -15,31 +44,51 @@ class TestCrew():
 	tasks_config = 'config/tasks.yaml'
 
 	@agent
-	def researcher(self) -> Agent:
+	def cisco_expert(self) -> Agent:
+		file_read_tool = FileReadTool()
 		return Agent(
-			config=self.agents_config['researcher'],
-			# tools=[MyCustomTool()], # Example of custom tool, loaded on the beginning of file
+			config=self.agents_config['cisco_expert'],
+			tools=[file_read_tool],
 			verbose=True
 		)
 
 	@agent
-	def reporting_analyst(self) -> Agent:
+	def pcap_expert(self) -> Agent:
+		file_read_tool = FileReadTool()
+		pcaptool = PcapTool()
 		return Agent(
-			config=self.agents_config['reporting_analyst'],
+			config=self.agents_config['pcap_expert'],
+			tools=[file_read_tool, pcaptool],
+			verbose=True
+		)
+	
+	@agent
+	def network_engineer(self) -> Agent:
+		return Agent(
+			config=self.agents_config['network_engineer'],
 			verbose=True
 		)
 
 	@task
-	def research_task(self) -> Task:
+	def analyse_cisco_log(self) -> Task:
 		return Task(
-			config=self.tasks_config['research_task'],
+			config=self.tasks_config['analyse_cisco_log'],
+			output_pydantic=log_findings
 		)
 
 	@task
-	def reporting_task(self) -> Task:
+	def analyse_packet_capture(self) -> Task:
 		return Task(
-			config=self.tasks_config['reporting_task'],
-			output_file='report.md'
+			config=self.tasks_config['analyse_packet_capture'],
+			output_pydantic=pcap_findings
+		)
+	
+	@task
+	def final_report(self) -> Task:
+		return Task(
+			config=self.tasks_config['final_report'],
+			output_file='report.md',
+			# context=[self.analyse_cisco_log, self.analyse_packet_capture]
 		)
 
 	@crew
