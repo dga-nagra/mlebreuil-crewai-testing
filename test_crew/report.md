@@ -1,33 +1,60 @@
-# Sonic NOS 2024 Comprehensive Report
+### Detailed Report on IPSec Tunnel Establishment Failure Between Zurich and Madrid Routers
 
-## 1. Enhanced Performance Features
-Sonic NOS has made significant strides in performance optimization with the introduction of new modules specifically designed to enhance data processing speeds. The platform can now achieve improvements of up to 25%, positioning it as one of the fastest data orchestration platforms in the market. This enhancement is critical for organizations that rely on speed and efficiency for their operations, enabling them to maintain a competitive edge. With reduced latency in data processing, businesses can now handle larger datasets with greater agility, making real-time decision-making more attainable.
+#### Summary
+The IPSec tunnel establishment between the Zurich router (IP: 85.184.252.26) and the Madrid router (Public IP: 46.24.40.133, Private IP: 172.30.165.250) has failed due to several issues primarily related to NAT configuration and authorization states. The Madrid DMVPN router is located behind a firewall performing NAT, complicating the negotiation process. The following points outline the key findings from the logs and the proposed remediation steps.
 
-## 2. AI-Powered Analytics
-In an effort to elevate data-driven decision-making, Sonic NOS has integrated AI-driven analytics capabilities. This feature automatically identifies and extracts valuable insights from data patterns without manual intervention. Organizations can leverage real-time data analysis to understand trends, predict outcomes, and optimize operations. The incorporation of AI not only speeds up the analytics process but also enhances the accuracy of insights, empowering businesses to make more informed choices and react swiftly to market changes.
+#### Findings
 
-## 3. Cloud Integration Advancements
-Recognizing the growing importance of cloud technologies, Sonic NOS has significantly expanded its compatibility with major cloud service providers including Amazon Web Services (AWS), Microsoft Azure, and Google Cloud. This expansion facilitates seamless data migration and management across hybrid environments, allowing organizations to utilize the best of both on-premises and cloud solutions. With these advancements, businesses can achieve increased flexibility and scalability, easily switching between environments as needed for operations.
+1. **Event: EV_NO_EVENT / WAIT_AUTH**
+   - **Description**: The sessions are stalled in the WAIT_AUTH state, indicating a blockage in the authorization process.
+   - **Example Log**: 
+     ```
+     Nov 30 2024 11:16:54.881 UTC: IKEv2-INTERNAL:(SESSION ID = 444548,SA ID = 9):SM Trace-> SA: I_SPI=112AD55D6FE6B89B R_SPI=4890461ECAA32FE3 (I) MsgID = 1 CurState: I_WAIT_AUTH Event: EV_NO_EVENT
+     ```
 
-## 4. Improved Security Protocols
-As cyber threats become increasingly prevalent, Sonic NOS has prioritized the implementation of improved security protocols. The platform now features multi-factor authentication (MFA) and encryption-at-rest to enhance the protection of sensitive data. These measures are crucial for maintaining compliance with regulatory requirements and safeguarding against breaches. By ensuring that only authorized users can access the platform and that data remains secure even when stored, organizations can significantly reduce their risk exposure.
+2. **NAT Detection Issues**
+   - **Description**: The log messages clearly show discrepancies in local and remote addresses due to NAT configurations. The Madrid router is located behind a NAT device, causing mismatches that hinder successful negotiations.
+   - **Example Log**: 
+     ```
+     Nov 30 2024 11:16:56.461 UTC: IKEv2-INTERNAL:(SESSION ID = 444548,SA ID = 4):Processing nat detect dst notify
+     Nov 30 2024 11:16:56.461 UTC: IKEv2-INTERNAL:(SESSION ID = 444548,SA ID = 4):Local address not matched
+     Nov 30 2024 11:16:56.461 UTC: IKEv2-INTERNAL:(SESSION ID = 444548,SA ID = 4):Host is located NAT inside
+     ```
 
-## 5. User-Friendly Interface Updates
-The latest release of Sonic NOS includes significant updates to its user interface, designed to improve the overall user experience. These enhancements facilitate a more intuitive navigation path, significantly reducing the learning curve for new users. By streamlining the design and simplifying access to key functionalities, Sonic NOS allows users to fully leverage the platform's capabilities from the outset. Positive user feedback indicates that these changes have led to increased productivity and satisfaction among users.
+3. **RE_XMT (Retransmission) Events**
+   - **Description**: There were multiple retransmissions logged without successful authentication, suggesting that responses from the Madrid router are likely being blocked or not reaching the Zurich router.
+   - **Example Log**: 
+     ```
+     Nov 30 2024 11:16:58.428 UTC: IKEv2-INTERNAL:(SESSION ID = 444548,SA ID = 4):SM Trace-> SA: I_SPI=C571EF343834DF4F R_SPI=BB515F3AD24E6123 (I) MsgID = 1 CurState: I_WAIT_AUTH Event: EV_RE_XMT
+     ```
 
-## 6. Scalability Improvements
-Sonic NOS now provides enhanced scalability options, enabling organizations to scale their instances easily and efficiently as data volume increases. This flexibility ensures that performance remains uncompromised during periods of growth or when handling large datasets. The platform is designed to accommodate dynamic business needs, allowing organizations to adjust their data processing capabilities quickly to maintain service quality without having to undergo complex reconfigurations.
+4. **Failure Events**
+   - **Description**: The sessions exceeded the number of allowed retransmissions, leading to failure events due to timeouts, indicating that the tunnel negotiation could not complete.
+   - **Example Log**: 
+     ```
+     Nov 30 2024 11:16:59.553 UTC: IKEv2-INTERNAL:(SESSION ID = 444544,SA ID = 1):SM Trace-> SA: I_SPI=7B13CAD468D71308 R_SPI=45423664B616691C (I) MsgID = 1 CurState: AUTH_DONE Event: EV_FAIL
+     ```
 
-## 7. Real-time Data Management
-The support for real-time data streaming is one of Sonic NOS's most impactful features. Organizations can now process and respond to data as it becomes available, an essential capability for industries that rely on timely information. This feature enhances operational efficiency, particularly for businesses involved in sectors such as finance, e-commerce, and telecommunications, where immediacy is critical for maximizing performance and seizing opportunities.
+#### Proposed Remediation Steps
 
-## 8. Cross-Platform Compatibility
-Recent developments in Sonic NOS ensure that the platform is now fully compatible with various operating systems, including Windows, macOS, and Linux. This cross-platform functionality provides users with the flexibility to access and utilize the software according to their preferred environment. As a result, organizations can allocate resources more efficiently and empower a broader range of personnel, regardless of their operating system of choice.
+1. **NAT Configuration**
+   - Enable NAT traversal (NAT-T) on both routers to ensure that IPSec packets can pass through NAT devices. This would involve configuring the proper ISAKMP settings to allow NAT-T and ensuring that the firewall allows UDP port 500 (for IKE) and UDP port 4500 (for NAT-T).
 
-## 9. Community and Support Expansion
-Sonic NOS is committed to enhancing user support by expanding its community forums and customer support services. Users now have greater access to a wealth of resources, documentation, and expert assistance. This commitment to community-building fosters a collaborative environment where users can share best practices, troubleshoot issues, and optimize their use of the platform. The expansion of support services ensures that all users can maximize their Sonic NOS experience effectively.
+2. **Adjust Firewall Settings**
+   - Review and modify the firewall rules at the Madrid site to ensure it permits IPSec traffic, including allowing for the appropriate protocols and ports as specified above.
 
-## 10. Partnerships with Leading Tech Firms
-In an effort to continuously innovate, Sonic NOS has secured strategic partnerships with leading technology firms. These collaborations allow for the integration of cutting-edge technology and innovations directly into the platform. By leveraging these partnerships, Sonic NOS can offer enhanced capabilities that address emerging market needs and drive user appeal. As a result, users benefit from a platform that evolves in tandem with technological advancements and industry trends.
+3. **Update ISAKMP Configuration**
+   - Confirm the appropriate ISAKMP settings on both routers. Ensure that the pre-shared keys, encryption methods, and lifetimes are configured correctly to allow for strong and effective negotiation between the peers.
 
-In conclusion, the substantial advancements made in Sonic NOS as of 2024 not only enhance its functionality but also position it as a robust solution for organizations facing the challenges of modern data management. These developments reflect a strong commitment to performance, security, usability, and continuous growth, ensuring that Sonic NOS remains a competitive player in the data orchestration space.
+4. **Monitor Connectivity**
+   - Utilize extended logging and debugging on both routers to capture detailed information during the tunnel setup process. This logging can help identify any further issues that may arise during subsequent attempts to establish the IPSec tunnel.
+
+5. **Test Establishment After Adjustments**
+   - Make the necessary configuration changes and then perform tests to establish the IPSec tunnel, monitoring the logs for successful negotiation.
+
+By implementing these remediation steps, we should be able to resolve the issues causing the IPSec tunnel establishment failure between the Zurich and Madrid routers.
+
+### Recommendations
+- Continuous monitoring of the tunnel once established. Ensure periodic testing and validation of the tunnel’s functionality, especially after any network changes.
+
+This structured approach will facilitate the successful establishment of the IPSec tunnel while maintaining security and efficiency across the network.
