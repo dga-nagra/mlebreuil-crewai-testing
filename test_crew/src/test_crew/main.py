@@ -17,7 +17,7 @@ def run():
     """
     inputs = {
         'topic' : 'ipsec',
-        'symptoms' : 'The ipsec tunnel cannot be established between the Zurich router with ip 85.184.252.26 and the Madrid router with public ip 46.24.40.133 and private ip 172.30.165.250. The dmvpn router in madrid is behind a firewall performing NAT.',
+        'symptoms' : 'The ipsec tunnel cannot be established between the Zurich router with ip x.x.x.x and the Madrid router with public ip x.x.x.x and private ip x.x.x.x The dmvpn router in madrid is behind a firewall performing NAT.',
         'log_files' : ['data/MAD-01-0501-RTV01_debug_2024-11-30.txt'],
         'pcap_files' : ['data/rx_mad_dmvpn.pcap']
     }
