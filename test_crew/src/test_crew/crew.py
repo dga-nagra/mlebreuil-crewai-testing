@@ -1,4 +1,4 @@
-from crewai import Agent, Crew, Process, Task
+from crewai import Agent, Crew, Process, Task, LLM
 from crewai.project import CrewBase, agent, crew, task
 
 # Uncomment the following line to use an example of a custom tool
@@ -49,6 +49,7 @@ class TestCrew():
 		return Agent(
 			config=self.agents_config['cisco_expert'],
 			tools=[file_read_tool],
+			llm=LLM(model="ollama/qwen2.5:32b", base_url="http://localhost:11434"),
 			verbose=True
 		)
 
@@ -59,6 +60,7 @@ class TestCrew():
 		return Agent(
 			config=self.agents_config['pcap_expert'],
 			tools=[file_read_tool, pcaptool],
+			llm=LLM(model="ollama/qwen2.5:32b", base_url="http://localhost:11434"),
 			verbose=True
 		)
 	
@@ -66,6 +68,7 @@ class TestCrew():
 	def network_engineer(self) -> Agent:
 		return Agent(
 			config=self.agents_config['network_engineer'],
+			llm=LLM(model="ollama/qwen2.5:32b", base_url="http://localhost:11434"),
 			verbose=True
 		)
 
