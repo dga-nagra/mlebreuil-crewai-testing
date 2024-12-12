@@ -17,7 +17,7 @@ def run():
     """
     Run the crew.
     """
-    with open('inputs.yaml', 'r') as file:
+    with open('/home/lebreuil/github/crewai-testing/test_crew/src/test_crew/inputs.yaml', 'r') as file:
         inputs = yaml.safe_load(file)
     TestCrew().crew().kickoff(inputs=inputs)
 
@@ -26,7 +26,7 @@ def train():
     """
     Train the crew for a given number of iterations.
     """
-    with open('inputs.yaml', 'r') as file:
+    with open('/home/lebreuil/github/crewai-testing/test_crew/src/test_crew/inputs.yaml', 'r') as file:
         inputs = yaml.safe_load(file)
     try:
         TestCrew().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
@@ -48,7 +48,7 @@ def test():
     """
     Test the crew execution and returns the results.
     """
-    with open('inputs.yaml', 'r') as file:
+    with open('/home/lebreuil/github/crewai-testing/test_crew/src/test_crew/inputs.yaml', 'r') as file:
         inputs = yaml.safe_load(file)
     try:
         TestCrew().crew().test(n_iterations=int(sys.argv[1]), openai_model_name=sys.argv[2], inputs=inputs)
