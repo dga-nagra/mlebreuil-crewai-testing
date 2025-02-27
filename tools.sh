@@ -29,6 +29,13 @@ connect_gpu_server() {
     forward_ssh "$SSH_OLLAMA"
 }
 
-if [[ -n "$SSH_OLLAMA" ]]; then
-    connect_gpu_server 2>/dev/null &
-fi
+check_ollama() {
+    netstat -tulpn | grep 1143
+}
+
+
+# if [[ -n "$SSH_OLLAMA" ]]; then
+#     connect_gpu_server 2>/dev/null &
+# fi
+
+
