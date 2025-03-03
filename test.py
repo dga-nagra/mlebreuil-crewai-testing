@@ -17,6 +17,11 @@ from crewai import Agent, Task, Crew, LLM
 from IPython.display import display, Markdown
 
 
+# Litellm issue
+# https://github.com/BerriAI/litellm/issues/8594
+# KeyError: 'name'
+
+
 # I get "Connection Reset by peer"
 # https://github.com/crewAIInc/crewAI/issues/1337
 
@@ -25,7 +30,8 @@ model = get_default_model()
 # DEFAULT_LLM = get_default_llm()
 # print(DEFAULT_LLM.base_url, DEFAULT_LLM.model)
 
-BASE_URL="http://localhost:11430"
+# In some tools, the port for ollama is hardcoded
+BASE_URL="http://localhost:11434"
 os.environ["OPENAI_BASE_URL"] = BASE_URL
 
 # OpenTelemetry is causing issues. We need to disable it.

@@ -15,13 +15,20 @@ export DEFAULT_LLM_BASE_URL="http://$OLLAMA_HOST:$OLLAMA_PORT"
 export LLM_BASE_URL="${LLM_BASE_URL:-$DEFAULT_LLM_BASE_URL}"
 
 
+stop_local_ollama() {
+    sudo systemctl stop ollama
+    sudo pkill -9 ollama
+}
+
 # https://superuser.com/a/1658519
 forward_ssh() {
     ssh -NT -o ServerAliveInterval=60 -o ServerAliveCountMax=10 -o ExitOnForwardFailure=yes -L "$OLLAMA_PORT:localhost:$DEFAULT_OLLAMA_PORT" $@
 }
 
 connect_gpu_server() {
-    
+    if [[ "$STOP_LOCAL_OLLAMA" = 'TRUE' ]]; then
+        stop_local_ollama
+    fi 
     if [[ -z "$SSH_OLLAMA" ]]; then
         echo 'Environment variable $SSH_OLLAMA is not defined'
         exit 1
@@ -30,7 +37,7 @@ connect_gpu_server() {
 }
 
 check_ollama() {
-    netstat -tulpn | grep 1143
+    netstat -tulpn | grep "$OLLAMA_PORT"
 }
 
 
