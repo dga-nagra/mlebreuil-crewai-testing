@@ -6,6 +6,9 @@ warnings.filterwarnings('ignore')
 # from helper import load_env
 # load_env()
 from helpers import get_default_llm, get_ollama_client, get_default_model
+# from crewai_tools import BaseTool
+from crewai.tools import BaseTool, tool
+
 
 
 import os

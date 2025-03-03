@@ -23,12 +23,6 @@ class log_finding(BaseModel):
 class log_findings(BaseModel):
     findings: List[log_finding] = Field(..., description="The list of log_file_finding")
 
-# pcap findings pydantic model
-class pcap_finding_types(str, Enum):
-    missing = 'missing packet'
-    repeted = 'repeted packets'
-    error = 'error packet'
-
 class pcap_finding(BaseModel):
     type: log_finding_types = Field(..., description="The type of the finding.")
     details: str = Field(..., description="Why this finding explain the symptoms")
